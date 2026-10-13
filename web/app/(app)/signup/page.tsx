@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { AuthShell } from "@/components/auth/AuthShell";
-import { CodeStep } from "@/components/auth/CodeStep";
 import { Alert, Button, Field, Input } from "@/components/ui";
 import { ApiError, auth } from "@/lib/api";
 
@@ -15,7 +14,6 @@ export default function SignupPage() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [retryAfter, setRetryAfter] = useState<number | null>(null);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -23,31 +21,13 @@ export default function SignupPage() {
     if (password !== confirm) return setError("Passwords don't match.");
     setBusy(true);
     try {
-      const r = await auth.signup(email, password);
-      if (r.kind === "verify") setRetryAfter(r.retryAfter);
+      await auth.signup(email, password);
+      router.replace("/dashboard");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not sign up. Please try again.");
-    } finally {
       setBusy(false);
     }
   };
-
-  if (retryAfter !== null) {
-    return (
-      <AuthShell title="Check your email" subtitle="Verify your address to finish creating your account.">
-        <CodeStep
-          email={email}
-          purpose="verify_email"
-          retryAfter={retryAfter}
-          submitLabel="Verify and continue"
-          onSubmit={async (code) => {
-            await auth.verifyEmail(email, password, code);
-            router.replace("/dashboard");
-          }}
-        />
-      </AuthShell>
-    );
-  }
 
   return (
     <AuthShell

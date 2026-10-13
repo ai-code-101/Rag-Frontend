@@ -23,12 +23,12 @@ body.widget-body {
   background: transparent;
 }
 
-@keyframes pc-blink {
+@keyframes hv-blink {
   0%, 80%, 100% { opacity: 0.25; }
   40% { opacity: 1; }
 }
-.pc-typing span {
-  animation: pc-blink 1.2s infinite both;
+.hv-typing span {
+  animation: hv-blink 1.2s infinite both;
 }
-.pc-typing span:nth-child(2) { animation-delay: 0.2s; }
-.pc-typing span:nth-child(3) { animation-delay: 0.4s; }
+.hv-typing span:nth-child(2) { animation-delay: 0.2s; }
+.hv-typing span:nth-child(3) { animation-delay: 0.4s; }

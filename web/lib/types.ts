@@ -1,4 +1,4 @@
-export type User = { id: string; email: string; email_verified: boolean; created_at: string };
+export type User = { id: string; email: string; created_at: string };
 
 export type Bot = {
   id: string;

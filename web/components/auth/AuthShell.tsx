@@ -13,7 +13,7 @@ export function Logo() {
           <path d="M3 20l6-10 4 6 3-4 5 8z" />
         </svg>
       </span>
-      PeakChat
+      Horizon Valley
     </Link>
   );
 }

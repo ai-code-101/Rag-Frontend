@@ -15,7 +15,7 @@ export class ApiError extends Error {
   }
 }
 
-type Session = { access_token: string; expires_at: string; user: { id: string; email: string; email_verified: boolean; created_at: string } };
+type Session = { access_token: string; expires_at: string; user: { id: string; email: string; created_at: string } };
 
 let accessToken: string | null = null;
 let refreshing: Promise<Session | null> | null = null;
@@ -47,7 +47,7 @@ export function refreshSession(): Promise<Session | null> {
     refreshing = fetch(`${BASE}/auth/refresh`, {
       method: "POST",
       credentials: "same-origin",
-      headers: { "X-Requested-With": "peakchat" },
+      headers: { "X-Requested-With": "horizonvalley" },
     })
       .then(async (res) => {
         if (!res.ok) {
@@ -89,43 +89,24 @@ export const json = (body: unknown): RequestInit => ({ body: JSON.stringify(body
 
 // ---- auth calls -------------------------------------------------------------------
 
-export type AuthResult = { kind: "session"; session: Session } | { kind: "verify"; retryAfter: number };
-
-async function authCall(path: string, body: unknown): Promise<AuthResult> {
+async function authCall(path: string, body: unknown): Promise<Session> {
   const res = await fetch(`${BASE}/auth/${path}`, {
     method: "POST",
     credentials: "same-origin",
-    headers: { "Content-Type": "application/json", "X-Requested-With": "peakchat" },
+    headers: { "Content-Type": "application/json", "X-Requested-With": "horizonvalley" },
     body: JSON.stringify(body),
   });
-  if (res.status === 202) {
-    const b = await res.json().catch(() => ({}));
-    return { kind: "verify", retryAfter: b.retry_after ?? 60 };
-  }
   if (!res.ok) throw await toError(res);
   const session = (await res.json()) as Session;
   setSession(session);
-  return { kind: "session", session };
+  return session;
 }
 
 export const auth = {
   signup: (email: string, password: string) => authCall("signup", { email, password }),
   login: (email: string, password: string) => authCall("login", { email, password }),
-  verifyEmail: (email: string, password: string, code: string) => authCall("verify-email", { email, password, code }),
-  resend: (email: string, purpose: "verify_email" | "login" | "reset_password") => authCall("otp/resend", { email, purpose }),
-  requestLoginCode: (email: string) => authCall("login/code", { email }),
-  loginWithCode: (email: string, code: string) => authCall("login/code/verify", { email, code }),
-  forgot: (email: string) => authCall("password/forgot", { email }),
-  async reset(email: string, code: string, password: string) {
-    const res = await fetch(`${BASE}/auth/password/reset`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, code, password }),
-    });
-    if (!res.ok) throw await toError(res);
-  },
   async logout() {
-    await fetch(`${BASE}/auth/logout`, { method: "POST", credentials: "same-origin", headers: { "X-Requested-With": "peakchat" } }).catch(() => {});
+    await fetch(`${BASE}/auth/logout`, { method: "POST", credentials: "same-origin", headers: { "X-Requested-With": "horizonvalley" } }).catch(() => {});
     setSession(null);
   },
 };

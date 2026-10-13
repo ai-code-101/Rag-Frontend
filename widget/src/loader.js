@@ -1,27 +1,27 @@
 /*!
- * PeakChat widget loader.
+ * Horizon Valley widget loader.
  *   <script src="https://<host>/widget.js" data-bot="<PUBLIC_KEY>" async></script>
  *
  * No framework. Renders a launcher inside a Shadow DOM (so host-page CSS can't leak in or
- * out) and opens the chat UI in an iframe served by the PeakChat web app. All messages
+ * out) and opens the chat UI in an iframe served by the Horizon Valley web app. All messages
  * crossing the frame boundary are origin- and source-checked.
  */
 (function () {
   "use strict";
 
   // Replaced when /widget.js is served (see web/app/widget.js/route.ts).
-  var API = "__PEAKCHAT_API__";
-  var WEB = "__PEAKCHAT_WEB__";
+  var API = "__HV_API__";
+  var WEB = "__HV_WEB__";
 
   var w = window;
   var d = document;
-  var prior = w.PeakChat;
+  var prior = w.HorizonValley;
   if (prior && prior.__loaded) return; // included twice
 
   var script = d.currentScript || d.querySelector("script[data-bot]");
   var key = script && script.getAttribute("data-bot");
   if (!key || !/^pk_[A-Za-z0-9_-]{24}$/.test(key)) {
-    if (w.console) console.warn("[PeakChat] missing or invalid data-bot attribute");
+    if (w.console) console.warn("[Horizon Valley] missing or invalid data-bot attribute");
     return;
   }
   var webOrigin;
@@ -77,11 +77,11 @@
     },
     identify: function (user) {
       state.user = sanitizeUser(user);
-      post({ type: "pc:identify", user: state.user });
+      post({ type: "hv:identify", user: state.user });
     },
   };
-  w.PeakChat = api;
-  // Calls made before the script loaded: window.PeakChat = { q: [["open"], ["identify", {...}]] }
+  w.HorizonValley = api;
+  // Calls made before the script loaded: window.HorizonValley = { q: [["open"], ["identify", {...}]] }
   if (prior && prior.q && prior.q.length) {
     for (var i = 0; i < prior.q.length; i++) {
       var call = prior.q[i];
@@ -107,14 +107,14 @@
   }
 
   w.addEventListener("message", function (e) {
-    // Only the iframe we created, served from the PeakChat origin, may talk to us.
+    // Only the iframe we created, served from the Horizon Valley origin, may talk to us.
     if (e.origin !== webOrigin || !state.iframe || e.source !== state.iframe.contentWindow) return;
     var data = e.data;
     if (!data || typeof data.type !== "string") return;
-    if (data.type === "pc:ready") {
+    if (data.type === "hv:ready") {
       state.ready = true;
-      post({ type: "pc:init", open: state.open, user: state.user });
-    } else if (data.type === "pc:close") {
+      post({ type: "hv:init", open: state.open, user: state.user });
+    } else if (data.type === "hv:close") {
       setOpen(false);
     }
   });
@@ -132,35 +132,35 @@
       return isFinite(v) ? Math.min(max, Math.max(min, v)) : def;
     };
     return [
-      "--pc-primary:" + color(t.primary_color, DEFAULTS.primary_color),
-      "--pc-bg:" + color(t.background_color, DEFAULTS.background_color),
-      "--pc-radius:" + num(t.radius, 0, 32, DEFAULTS.radius) + "px",
-      "--pc-ox:" + num(b.offset_x, 0, 200, 20) + "px",
-      "--pc-oy:" + num(b.offset_y, 0, 200, 20) + "px",
+      "--hv-primary:" + color(t.primary_color, DEFAULTS.primary_color),
+      "--hv-bg:" + color(t.background_color, DEFAULTS.background_color),
+      "--hv-radius:" + num(t.radius, 0, 32, DEFAULTS.radius) + "px",
+      "--hv-ox:" + num(b.offset_x, 0, 200, 20) + "px",
+      "--hv-oy:" + num(b.offset_y, 0, 200, 20) + "px",
     ].join(";");
   }
 
   var STYLE =
     ":host{all:initial}" +
-    ".pc-root{position:fixed;z-index:2147483000;bottom:var(--pc-oy);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
-    ".pc-right{right:var(--pc-ox)}.pc-left{left:var(--pc-ox)}" +
-    ".pc-launcher{all:unset;box-sizing:border-box;width:56px;height:56px;border-radius:50%;background:var(--pc-primary);color:#fff;" +
+    ".hv-root{position:fixed;z-index:2147483000;bottom:var(--hv-oy);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
+    ".hv-right{right:var(--hv-ox)}.hv-left{left:var(--hv-ox)}" +
+    ".hv-launcher{all:unset;box-sizing:border-box;width:56px;height:56px;border-radius:50%;background:var(--hv-primary);color:#fff;" +
     "display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.2);transition:transform .2s ease}" +
-    ".pc-launcher:hover{transform:scale(1.06)}.pc-launcher:focus-visible{outline:3px solid var(--pc-primary);outline-offset:3px}" +
-    ".pc-launcher svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}" +
-    ".pc-launcher img{width:30px;height:30px;object-fit:contain}" +
-    ".pc-panel{position:absolute;bottom:72px;width:380px;height:min(640px,calc(100vh - 110px));border-radius:var(--pc-radius);overflow:hidden;" +
-    "background:var(--pc-bg);box-shadow:0 16px 48px rgba(0,0,0,.2);opacity:0;visibility:hidden;transform:translateY(12px) scale(.98);" +
+    ".hv-launcher:hover{transform:scale(1.06)}.hv-launcher:focus-visible{outline:3px solid var(--hv-primary);outline-offset:3px}" +
+    ".hv-launcher svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}" +
+    ".hv-launcher img{width:30px;height:30px;object-fit:contain}" +
+    ".hv-panel{position:absolute;bottom:72px;width:380px;height:min(640px,calc(100vh - 110px));border-radius:var(--hv-radius);overflow:hidden;" +
+    "background:var(--hv-bg);box-shadow:0 16px 48px rgba(0,0,0,.2);opacity:0;visibility:hidden;transform:translateY(12px) scale(.98);" +
     "transform-origin:bottom right;transition:opacity .2s ease,transform .2s ease,visibility 0s linear .2s}" +
-    ".pc-right .pc-panel{right:0}.pc-left .pc-panel{left:0;transform-origin:bottom left}" +
-    ".pc-open .pc-panel{opacity:1;visibility:visible;transform:none;transition:opacity .2s ease,transform .2s ease}" +
-    ".pc-panel iframe{border:0;width:100%;height:100%;display:block}" +
-    "@media (max-width:640px){.pc-panel{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;border-radius:0}" +
-    ".pc-open .pc-launcher{display:none}}" +
+    ".hv-right .hv-panel{right:0}.hv-left .hv-panel{left:0;transform-origin:bottom left}" +
+    ".hv-open .hv-panel{opacity:1;visibility:visible;transform:none;transition:opacity .2s ease,transform .2s ease}" +
+    ".hv-panel iframe{border:0;width:100%;height:100%;display:block}" +
+    "@media (max-width:640px){.hv-panel{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;border-radius:0}" +
+    ".hv-open .hv-launcher{display:none}}" +
     // Same, for host pages without a viewport meta tag (where media queries see ~980px).
-    ".pc-mobile .pc-panel{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;border-radius:0}" +
-    ".pc-mobile.pc-open .pc-launcher{display:none}" +
-    "@media (prefers-reduced-motion:reduce){.pc-panel,.pc-launcher{transition:none}}";
+    ".hv-mobile .hv-panel{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;border-radius:0}" +
+    ".hv-mobile.hv-open .hv-launcher{display:none}" +
+    "@media (prefers-reduced-motion:reduce){.hv-panel,.hv-launcher{transition:none}}";
 
   function svg(path) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + path + '"/></svg>';
@@ -208,7 +208,7 @@
   }
 
   function rootClass() {
-    return "pc-root " + positionClass() + (state.open ? " pc-open" : "") + (isSmallScreen() ? " pc-mobile" : "");
+    return "hv-root " + positionClass() + (state.open ? " hv-open" : "") + (isSmallScreen() ? " hv-mobile" : "");
   }
 
   function setOpen(open) {
@@ -217,16 +217,16 @@
     state.open = open;
     state.rootEl.className = rootClass();
     setLauncher(open);
-    post({ type: open ? "pc:open" : "pc:hide" });
+    post({ type: open ? "hv:open" : "hv:hide" });
   }
 
   function positionClass() {
-    return (state.config.behavior || {}).position === "bottom-left" ? "pc-left" : "pc-right";
+    return (state.config.behavior || {}).position === "bottom-left" ? "hv-left" : "hv-right";
   }
 
   function render() {
     var host = d.createElement("div");
-    host.id = "peakchat-widget";
+    host.id = "horizon-valley-widget";
     var root = host.attachShadow ? host.attachShadow({ mode: "open" }) : host;
     var style = d.createElement("style");
     style.textContent = STYLE;
@@ -234,12 +234,12 @@
     el.className = rootClass();
     el.setAttribute("style", cssVars(state.config));
     var panel = d.createElement("div");
-    panel.className = "pc-panel";
+    panel.className = "hv-panel";
     panel.setAttribute("role", "dialog");
     panel.setAttribute("aria-label", (state.config.content || {}).title || "Chat");
     var launcher = d.createElement("button");
     launcher.type = "button";
-    launcher.className = "pc-launcher";
+    launcher.className = "hv-launcher";
     launcher.addEventListener("click", api.toggle);
     // Warm the iframe up when the visitor shows intent, so opening feels instant.
     launcher.addEventListener("pointerenter", ensureIframe, { once: true });
@@ -304,7 +304,7 @@
     if (!b.auto_open) return -1;
     try {
       // Auto-open once per browsing session, not on every page view.
-      var k = "pc_auto_" + key;
+      var k = "hv_auto_" + key;
       if (w.sessionStorage.getItem(k)) return -1;
       w.sessionStorage.setItem(k, "1");
     } catch (e) {
@@ -332,7 +332,7 @@
           }, delay);
       })
       .catch(function (err) {
-        if (w.console) console.warn("[PeakChat] widget unavailable:", err && err.message);
+        if (w.console) console.warn("[Horizon Valley] widget unavailable:", err && err.message);
       });
   }
 

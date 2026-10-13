@@ -3,12 +3,12 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const API = "https://api.peakchat.test";
-const WEB = "https://app.peakchat.test";
+const API = "https://api.horizonvalley.test";
+const WEB = "https://app.horizonvalley.test";
 const KEY = "pk_" + "A".repeat(24);
 const SOURCE = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "../src/loader.js"), "utf8")
-  .replace('"__PEAKCHAT_API__"', JSON.stringify(API))
-  .replace('"__PEAKCHAT_WEB__"', JSON.stringify(WEB));
+  .replace('"__HV_API__"', JSON.stringify(API))
+  .replace('"__HV_WEB__"', JSON.stringify(WEB));
 
 const baseConfig = {
   public_key: KEY,
@@ -29,12 +29,12 @@ function load({ config = baseConfig, attrs = { "data-bot": KEY }, readyState = "
 }
 
 const flush = () => new Promise((r) => setTimeout(r, 0));
-const shadow = () => document.getElementById("peakchat-widget")?.shadowRoot;
+const shadow = () => document.getElementById("horizon-valley-widget")?.shadowRoot;
 
 beforeEach(() => {
   document.head.innerHTML = "";
   document.body.innerHTML = "";
-  delete window.PeakChat;
+  delete window.HorizonValley;
   sessionStorage.clear();
   history.replaceState(null, "", "/");
   vi.useRealTimers();
@@ -45,19 +45,19 @@ describe("widget loader", () => {
     load();
     await flush();
     expect(fetch).toHaveBeenCalledWith(`${API}/v1/widget/${KEY}/config`, expect.objectContaining({ credentials: "omit" }));
-    const root = shadow().querySelector(".pc-root");
-    expect(root.className).toContain("pc-left");
-    expect(root.getAttribute("style")).toContain("--pc-primary:#ff0000");
-    expect(root.getAttribute("style")).toContain("--pc-ox:30px");
-    expect(shadow().querySelector(".pc-launcher").getAttribute("aria-expanded")).toBe("false");
+    const root = shadow().querySelector(".hv-root");
+    expect(root.className).toContain("hv-left");
+    expect(root.getAttribute("style")).toContain("--hv-primary:#ff0000");
+    expect(root.getAttribute("style")).toContain("--hv-ox:30px");
+    expect(shadow().querySelector(".hv-launcher").getAttribute("aria-expanded")).toBe("false");
     expect(shadow().querySelector("iframe")).toBeNull(); // lazy
   });
 
   it("rejects CSS injection in colours", async () => {
     load({ config: { ...baseConfig, theme: { primary_color: "red;background:url(https://evil)" } } });
     await flush();
-    const style = shadow().querySelector(".pc-root").getAttribute("style");
-    expect(style).toContain("--pc-primary:#4f46e5");
+    const style = shadow().querySelector(".hv-root").getAttribute("style");
+    expect(style).toContain("--hv-primary:#4f46e5");
     expect(style).not.toContain("evil");
   });
 
@@ -74,66 +74,66 @@ describe("widget loader", () => {
     load({ attrs: { "data-bot": "nope" } });
     await flush();
     expect(fetch).not.toHaveBeenCalled();
-    expect(window.PeakChat).toBeUndefined();
+    expect(window.HorizonValley).toBeUndefined();
   });
 
   it("open() creates the iframe for /widget/<key> and close() hides it", async () => {
     load();
     await flush();
-    window.PeakChat.open();
+    window.HorizonValley.open();
     const iframe = shadow().querySelector("iframe");
     expect(iframe.src).toBe(`${WEB}/widget/${KEY}?parent=${encodeURIComponent(location.origin)}&v=0`);
-    expect(shadow().querySelector(".pc-root").className).toContain("pc-open");
-    expect(window.PeakChat.isOpen()).toBe(true);
-    window.PeakChat.close();
-    expect(shadow().querySelector(".pc-root").className).not.toContain("pc-open");
+    expect(shadow().querySelector(".hv-root").className).toContain("hv-open");
+    expect(window.HorizonValley.isOpen()).toBe(true);
+    window.HorizonValley.close();
+    expect(shadow().querySelector(".hv-root").className).not.toContain("hv-open");
   });
 
-  it("only accepts messages from its own iframe on the PeakChat origin", async () => {
+  it("only accepts messages from its own iframe on the Horizon Valley origin", async () => {
     load();
     await flush();
-    window.PeakChat.open();
+    window.HorizonValley.open();
     const iframe = shadow().querySelector("iframe");
     // jsdom gives iframes inside shadow roots no browsing context; provide a stand-in window.
     const frameWindow = { postMessage: vi.fn() };
     Object.defineProperty(iframe, "contentWindow", { configurable: true, get: () => frameWindow });
     const posted = frameWindow.postMessage;
 
-    window.dispatchEvent(new MessageEvent("message", { origin: "https://evil.test", source: iframe.contentWindow, data: { type: "pc:close" } }));
-    window.dispatchEvent(new MessageEvent("message", { origin: WEB, source: window, data: { type: "pc:close" } }));
-    expect(window.PeakChat.isOpen()).toBe(true);
+    window.dispatchEvent(new MessageEvent("message", { origin: "https://evil.test", source: iframe.contentWindow, data: { type: "hv:close" } }));
+    window.dispatchEvent(new MessageEvent("message", { origin: WEB, source: window, data: { type: "hv:close" } }));
+    expect(window.HorizonValley.isOpen()).toBe(true);
 
-    window.dispatchEvent(new MessageEvent("message", { origin: WEB, source: iframe.contentWindow, data: { type: "pc:ready" } }));
-    expect(posted).toHaveBeenCalledWith({ type: "pc:init", open: true, user: null }, WEB);
+    window.dispatchEvent(new MessageEvent("message", { origin: WEB, source: iframe.contentWindow, data: { type: "hv:ready" } }));
+    expect(posted).toHaveBeenCalledWith({ type: "hv:init", open: true, user: null }, WEB);
 
-    window.PeakChat.identify({ name: "Ada", email: "ada@example.com", evil: { x: 1 } });
-    expect(posted).toHaveBeenLastCalledWith({ type: "pc:identify", user: { name: "Ada", email: "ada@example.com" } }, WEB);
+    window.HorizonValley.identify({ name: "Ada", email: "ada@example.com", evil: { x: 1 } });
+    expect(posted).toHaveBeenLastCalledWith({ type: "hv:identify", user: { name: "Ada", email: "ada@example.com" } }, WEB);
 
-    window.dispatchEvent(new MessageEvent("message", { origin: WEB, source: iframe.contentWindow, data: { type: "pc:close" } }));
-    expect(window.PeakChat.isOpen()).toBe(false);
+    window.dispatchEvent(new MessageEvent("message", { origin: WEB, source: iframe.contentWindow, data: { type: "hv:close" } }));
+    expect(window.HorizonValley.isOpen()).toBe(false);
   });
 
   it("auto-opens with ?chat=open", async () => {
     history.replaceState(null, "", "/pricing?chat=open");
     load();
     await flush();
-    expect(window.PeakChat.isOpen()).toBe(true);
+    expect(window.HorizonValley.isOpen()).toBe(true);
   });
 
   it("auto-opens after the configured delay, once per session", async () => {
     vi.useFakeTimers({ toFake: ["setTimeout"] });
     load({ config: { ...baseConfig, behavior: { ...baseConfig.behavior, auto_open: true, auto_open_delay_ms: 3000 } } });
     await vi.waitFor(() => expect(shadow()).toBeTruthy());
-    expect(window.PeakChat.isOpen()).toBe(false);
+    expect(window.HorizonValley.isOpen()).toBe(false);
     vi.advanceTimersByTime(3000);
-    expect(window.PeakChat.isOpen()).toBe(true);
-    expect(sessionStorage.getItem(`pc_auto_${KEY}`)).toBe("1");
+    expect(window.HorizonValley.isOpen()).toBe(true);
+    expect(sessionStorage.getItem(`hv_auto_${KEY}`)).toBe("1");
   });
 
   it("hides on configured paths, including after SPA navigation", async () => {
     load({ config: { ...baseConfig, behavior: { ...baseConfig.behavior, hide_on_paths: ["/checkout/*"] } } });
     await flush();
-    const host = document.getElementById("peakchat-widget");
+    const host = document.getElementById("horizon-valley-widget");
     expect(host.style.display).toBe("");
     history.pushState(null, "", "/checkout/step-1");
     await flush();
@@ -144,9 +144,9 @@ describe("widget loader", () => {
   });
 
   it("replays calls queued before the script loaded", async () => {
-    window.PeakChat = { q: [["open"]] };
+    window.HorizonValley = { q: [["open"]] };
     load();
     await flush();
-    expect(window.PeakChat.isOpen()).toBe(true);
+    expect(window.HorizonValley.isOpen()).toBe(true);
   });
 });

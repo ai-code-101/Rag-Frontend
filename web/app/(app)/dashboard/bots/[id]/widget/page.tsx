@@ -68,7 +68,7 @@ export default function WidgetPage() {
   // Push the draft to the preview iframe (same origin only).
   const pushPreview = () => {
     if (settings && frame.current?.contentWindow) {
-      frame.current.contentWindow.postMessage({ type: "pc:preview", settings }, window.location.origin);
+      frame.current.contentWindow.postMessage({ type: "hv:preview", settings }, window.location.origin);
     }
   };
   useEffect(() => {
@@ -210,7 +210,7 @@ export default function WidgetPage() {
 
         <Section title="Features">
           <Toggle label="Show sources under answers" checked={features.show_sources} onChange={(v) => up("features", { show_sources: v })} />
-          <Toggle label="Show “Powered by PeakChat”" checked={features.branding} onChange={(v) => up("features", { branding: v })} />
+          <Toggle label="Show “Powered by Horizon Valley”" checked={features.branding} onChange={(v) => up("features", { branding: v })} />
           <Toggle label="Lead capture form before chatting" checked={features.lead_capture.enabled} onChange={(v) => up("features", { lead_capture: { ...features.lead_capture, enabled: v, fields: features.lead_capture.fields.length ? features.lead_capture.fields : ["email"] } })} />
           {features.lead_capture.enabled && (
             <div className="space-y-3 rounded-lg bg-slate-50 p-3">
@@ -256,7 +256,7 @@ export default function WidgetPage() {
           </pre>
           <p className="mt-3 text-xs text-slate-500">
             Paste it into your site&apos;s &lt;head&gt; or before &lt;/body&gt;. Control it from JavaScript with{" "}
-            <code>PeakChat.open()</code>, <code>PeakChat.close()</code> and <code>PeakChat.identify({"{ name, email }"})</code>, or open it with a
+            <code>HorizonValley.open()</code>, <code>HorizonValley.close()</code> and <code>HorizonValley.identify({"{ name, email }"})</code>, or open it with a
             link ending in <code>?chat=open</code>.
           </p>
         </Card>

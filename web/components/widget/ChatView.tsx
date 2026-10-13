@@ -109,8 +109,8 @@ export function ChatView({ theme, content, features, initialMessages = NO_MESSAG
   const showQuickReplies = !messages.some((m) => m.role === "user") && (content.quick_replies?.length ?? 0) > 0;
 
   return (
-    <div style={themeVars(theme)} className={`flex h-full flex-col bg-[var(--pc-bg)] text-[var(--pc-text)] ${className ?? ""}`}>
-      <header className="flex items-center gap-3 bg-[var(--pc-primary)] px-4 py-3 text-[var(--pc-on-primary)]">
+    <div style={themeVars(theme)} className={`flex h-full flex-col bg-[var(--hv-bg)] text-[var(--hv-text)] ${className ?? ""}`}>
+      <header className="flex items-center gap-3 bg-[var(--hv-primary)] px-4 py-3 text-[var(--hv-on-primary)]">
         {theme.logo_url && /^https?:\/\//.test(theme.logo_url) && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={theme.logo_url} alt="" className="h-8 w-8 rounded-full bg-white/20 object-cover" />
@@ -137,7 +137,7 @@ export function ChatView({ theme, content, features, initialMessages = NO_MESSAG
                 m.content ? (
                   <Markdown text={m.content} />
                 ) : m.streaming ? (
-                  <span className="pc-typing inline-flex gap-1" aria-label="Assistant is typing">
+                  <span className="hv-typing inline-flex gap-1" aria-label="Assistant is typing">
                     <span>●</span>
                     <span>●</span>
                     <span>●</span>
@@ -181,7 +181,7 @@ export function ChatView({ theme, content, features, initialMessages = NO_MESSAG
                 key={q}
                 type="button"
                 onClick={() => void submit(q)}
-                className="rounded-full border border-[var(--pc-primary)] px-3 py-1.5 text-sm text-[var(--pc-primary)] transition hover:bg-[var(--pc-primary)] hover:text-[var(--pc-on-primary)]"
+                className="rounded-full border border-[var(--hv-primary)] px-3 py-1.5 text-sm text-[var(--hv-primary)] transition hover:bg-[var(--hv-primary)] hover:text-[var(--hv-on-primary)]"
               >
                 {q}
               </button>
@@ -210,14 +210,14 @@ export function ChatView({ theme, content, features, initialMessages = NO_MESSAG
                 void submit(input);
               }
             }}
-            className="max-h-[120px] flex-1 resize-none rounded-[calc(var(--pc-radius)*0.75)] border border-black/10 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[var(--pc-primary)] focus:outline-none"
+            className="max-h-[120px] flex-1 resize-none rounded-[calc(var(--hv-radius)*0.75)] border border-black/10 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[var(--hv-primary)] focus:outline-none"
           />
           {busy ? (
             <button
               type="button"
               onClick={() => abortRef.current?.abort()}
               aria-label="Stop generating"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--pc-primary)] text-[var(--pc-on-primary)]"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--hv-primary)] text-[var(--hv-on-primary)]"
             >
               <span className="h-3 w-3 rounded-sm bg-current" />
             </button>
@@ -226,7 +226,7 @@ export function ChatView({ theme, content, features, initialMessages = NO_MESSAG
               type="submit"
               disabled={!input.trim()}
               aria-label="Send message"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--pc-primary)] text-[var(--pc-on-primary)] disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--hv-primary)] text-[var(--hv-on-primary)] disabled:opacity-40"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M5 12h14M13 6l6 6-6 6" />
@@ -237,7 +237,7 @@ export function ChatView({ theme, content, features, initialMessages = NO_MESSAG
       )}
       {features.branding !== false && (
         <p className="pb-2 text-center text-[11px] opacity-50">
-          Powered by <span className="font-medium">PeakChat</span>
+          Powered by <span className="font-medium">Horizon Valley</span>
         </p>
       )}
     </div>
@@ -250,9 +250,9 @@ function Bubble({ role, error, children }: { role: "user" | "assistant"; error?:
     <div className={`flex ${user ? "justify-end" : "justify-start"}`}>
       <div
         className={`max-w-[85%] px-3.5 py-2 text-sm leading-relaxed break-words ${
-          user ? "bg-[var(--pc-user)] text-[var(--pc-on-user)]" : "bg-[var(--pc-bot)] text-[var(--pc-text)]"
+          user ? "bg-[var(--hv-user)] text-[var(--hv-on-user)]" : "bg-[var(--hv-bot)] text-[var(--hv-text)]"
         } ${error ? "ring-1 ring-red-300" : ""}`}
-        style={{ borderRadius: "var(--pc-radius)", [user ? "borderBottomRightRadius" : "borderBottomLeftRadius"]: "4px" }}
+        style={{ borderRadius: "var(--hv-radius)", [user ? "borderBottomRightRadius" : "borderBottomLeftRadius"]: "4px" }}
       >
         {children}
       </div>

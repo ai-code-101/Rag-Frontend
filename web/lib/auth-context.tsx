@@ -14,8 +14,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setSessionListener((s) => setState(s ? { status: "authenticated", user: s.user } : { status: "anonymous", user: null }));
     // Restore the session from the httpOnly refresh cookie on first load. The readable
-    // pc_has_session hint (no secret in it) lets anonymous visitors skip that request.
-    const hasSession = () => document.cookie.split("; ").includes("pc_has_session=1");
+    // hv_has_session hint (no secret in it) lets anonymous visitors skip that request.
+    const hasSession = () => document.cookie.split("; ").includes("hv_has_session=1");
     if (hasSession()) {
       refreshSession().then((s) => {
         if (!s) setState({ status: "anonymous", user: null });

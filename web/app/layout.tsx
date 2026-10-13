@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "PeakChat", template: "%s · PeakChat" },
+  title: { default: "Horizon Valley", template: "%s · Horizon Valley" },
   description: "AI chatbots that answer from your own knowledge base.",
 };
 

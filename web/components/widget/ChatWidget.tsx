@@ -24,9 +24,9 @@ export function ChatWidget({ config, apiUrl, publicKey, preview }: Props) {
   const conversationId = useRef<string | null>(null);
   const [embedded, setEmbedded] = useState(false);
 
-  const vidKey = `pc_vid_${publicKey}`;
-  const cidKey = `pc_cid_${publicKey}`;
-  const leadKey = `pc_lead_${publicKey}`;
+  const vidKey = `hv_vid_${publicKey}`;
+  const cidKey = `hv_cid_${publicKey}`;
+  const leadKey = `hv_lead_${publicKey}`;
 
   const visitorId = useMemo(() => {
     if (typeof window === "undefined") return "";
@@ -65,28 +65,28 @@ export function ChatWidget({ config, apiUrl, publicKey, preview }: Props) {
       const data = e.data as { type?: string; user?: Record<string, string>; settings?: WidgetSettings; open?: boolean };
       if (!data || typeof data.type !== "string") return;
       // Live preview: only the dashboard (same origin) may push draft settings.
-      if (data.type === "pc:preview") {
+      if (data.type === "hv:preview") {
         if (preview && e.origin === window.location.origin && data.settings) setSettings(data.settings);
         return;
       }
       if (e.origin !== window.location.origin && !originAllowed(config.allowed_origins, e.origin)) return;
-      if (data.type === "pc:init") {
+      if (data.type === "hv:init") {
         parentOrigin.current = e.origin;
         if (data.user) visitorMeta.current = data.user;
         if (data.open) setFocus((f) => f + 1);
-      } else if (data.type === "pc:identify" && data.user) {
+      } else if (data.type === "hv:identify" && data.user) {
         visitorMeta.current = data.user;
-      } else if (data.type === "pc:open") {
+      } else if (data.type === "hv:open") {
         setFocus((f) => f + 1);
       }
     };
     window.addEventListener("message", onMessage);
-    postToParent({ type: "pc:ready" }); // contains nothing sensitive, safe before the handshake
+    postToParent({ type: "hv:ready" }); // contains nothing sensitive, safe before the handshake
     return () => window.removeEventListener("message", onMessage);
   }, [config.allowed_origins, preview, postToParent]);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && postToParent({ type: "pc:close" });
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && postToParent({ type: "hv:close" });
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [postToParent]);
@@ -152,7 +152,7 @@ export function ChatWidget({ config, apiUrl, publicKey, preview }: Props) {
         features={settings.features}
         initialMessages={history}
         send={send}
-        onClose={embedded ? () => postToParent({ type: "pc:close" }) : undefined}
+        onClose={embedded ? () => postToParent({ type: "hv:close" }) : undefined}
         gate={gate}
         focusSignal={focus}
       />
@@ -190,11 +190,11 @@ function LeadForm({ fields, prompt, onSubmit }: { fields: string[]; prompt: stri
           aria-label={labels[f]?.[0] ?? f}
           value={values[f] ?? ""}
           onChange={(e) => setValues((v) => ({ ...v, [f]: e.target.value }))}
-          className="block w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[var(--pc-primary)] focus:outline-none"
+          className="block w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[var(--hv-primary)] focus:outline-none"
         />
       ))}
       {error && <p className="text-xs text-red-600">{error}</p>}
-      <button type="submit" disabled={busy} className="w-full rounded-lg bg-[var(--pc-primary)] py-2 text-sm font-medium text-[var(--pc-on-primary)] disabled:opacity-60">
+      <button type="submit" disabled={busy} className="w-full rounded-lg bg-[var(--hv-primary)] py-2 text-sm font-medium text-[var(--hv-on-primary)] disabled:opacity-60">
         Start chatting
       </button>
     </form>

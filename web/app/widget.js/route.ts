@@ -6,8 +6,8 @@ import { WIDGET_LOADER } from "@/lib/widget-loader.generated";
 export const dynamic = "force-dynamic";
 
 export function GET() {
-  const body = WIDGET_LOADER.replace('"__PEAKCHAT_API__"', JSON.stringify(serverEnv.publicApiUrl)).replace(
-    '"__PEAKCHAT_WEB__"',
+  const body = WIDGET_LOADER.replace('"__HV_API__"', JSON.stringify(serverEnv.publicApiUrl)).replace(
+    '"__HV_WEB__"',
     JSON.stringify(serverEnv.publicWebUrl),
   );
   return new Response(body, {

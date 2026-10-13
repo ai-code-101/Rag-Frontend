@@ -31,14 +31,14 @@ export function themeVars(t: Partial<Theme>): CSSProperties {
   const primary = color(t.primary_color, "#4f46e5");
   const user = color(t.user_bubble_color, primary);
   return {
-    "--pc-primary": primary,
-    "--pc-on-primary": contrastText(primary),
-    "--pc-bg": color(t.background_color, "#ffffff"),
-    "--pc-text": color(t.text_color, "#111827"),
-    "--pc-user": user,
-    "--pc-on-user": contrastText(user),
-    "--pc-bot": color(t.bot_bubble_color, "#f3f4f6"),
-    "--pc-radius": `${Math.min(32, Math.max(0, Number(t.radius ?? 16)))}px`,
+    "--hv-primary": primary,
+    "--hv-on-primary": contrastText(primary),
+    "--hv-bg": color(t.background_color, "#ffffff"),
+    "--hv-text": color(t.text_color, "#111827"),
+    "--hv-user": user,
+    "--hv-on-user": contrastText(user),
+    "--hv-bot": color(t.bot_bubble_color, "#f3f4f6"),
+    "--hv-radius": `${Math.min(32, Math.max(0, Number(t.radius ?? 16)))}px`,
     fontFamily: FONTS[t.font_family ?? "system"] ?? FONTS.system,
   } as CSSProperties;
 }

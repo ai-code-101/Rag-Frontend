@@ -1,6 +1,6 @@
-# PeakChat — dashboard and widget (frontend)
+# Horizon Valley — dashboard and widget (frontend)
 
-The customer-facing half of PeakChat, a multi-tenant RAG chatbot platform. The backend
+The customer-facing half of Horizon Valley, a multi-tenant RAG chatbot platform. The backend
 (Go API + Python RAG service) lives in
 [`Rag-Backend`](https://github.com/ai-code-101/Rag-Backend), which also has the
 architecture doc, the database schema and the docker-compose stack.
@@ -12,8 +12,8 @@ architecture doc, the database schema and the docker-compose stack.
 
 ## Features
 
-* **Auth screens:** signup, login (password or emailed one-time code), 6-digit OTP entry
-  with paste support and a resend countdown, forgot/reset password.
+* **Auth screens:** signup and login with email and password (accounts are usable
+  immediately; there is no email verification).
 * **Bots:** list, create, delete, rotate keys.
 * **Knowledge tab:** drag-and-drop upload (PDF, DOCX, TXT, Markdown), import a URL, paste
   text; the document list updates live while ingestion runs; delete, refresh/retry.
@@ -41,10 +41,10 @@ architecture doc, the database schema and the docker-compose stack.
 * JavaScript API for host-site developers:
 
   ```js
-  PeakChat.open(); PeakChat.close(); PeakChat.toggle(); PeakChat.isOpen();
-  PeakChat.identify({ id: "42", name: "Ada", email: "ada@example.com" });
+  HorizonValley.open(); HorizonValley.close(); HorizonValley.toggle(); HorizonValley.isOpen();
+  HorizonValley.identify({ id: "42", name: "Ada", email: "ada@example.com" });
   // Calls made before the script loads can be queued:
-  window.PeakChat = window.PeakChat || { q: [] }; PeakChat.q.push(["open"]);
+  window.HorizonValley = window.HorizonValley || { q: [] }; HorizonValley.q.push(["open"]);
   ```
 
 ### Security model
@@ -52,7 +52,7 @@ architecture doc, the database schema and the docker-compose stack.
 * `/widget/<key>` responses carry `Content-Security-Policy: frame-ancestors 'self' <allowed origins>`
   (set in `web/proxy.ts`), so only the bot's allowed sites can frame the chat.
 * postMessage in both directions is origin- and source-checked. The loader only accepts
-  messages from its own iframe on the PeakChat origin. The iframe accepts messages only
+  messages from its own iframe on the Horizon Valley origin. The iframe accepts messages only
   from `window.parent` on an allowed origin, and draft previews only from the dashboard
   origin. Messages contain no secrets.
 * The visitor id and conversation id live in the iframe's `localStorage`, so no
@@ -108,10 +108,10 @@ cd web && npm run lint && npm run build
 ## Deploying to Cloud Run
 
 ```bash
-gcloud builds submit web --tag $REGION-docker.pkg.dev/$PROJECT/peakchat/web
-gcloud run deploy peakchat-web --image $REGION-docker.pkg.dev/$PROJECT/peakchat/web \
+gcloud builds submit web --tag $REGION-docker.pkg.dev/$PROJECT/horizonvalley/web
+gcloud run deploy horizon-valley-web --image $REGION-docker.pkg.dev/$PROJECT/horizonvalley/web \
   --region $REGION --allow-unauthenticated \
-  --set-env-vars API_INTERNAL_URL=https://peakchat-api-xxxx.run.app,PUBLIC_API_URL=https://api.example.com,PUBLIC_WEB_URL=https://app.example.com
+  --set-env-vars API_INTERNAL_URL=https://horizon-valley-api-xxxx.run.app,PUBLIC_API_URL=https://api.example.com,PUBLIC_WEB_URL=https://app.example.com
 ```
 
 The container is stateless (Next.js standalone output, non-root). Put a CDN in front for
